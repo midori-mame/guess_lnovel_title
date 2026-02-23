@@ -60,6 +60,24 @@ export interface GameState {
   timeLeft: number;              // 타임어택 모드 남은 시간(초)
 }
 
+// ─── 오답 공유 기능 타입 ───────────────────────────────────────
+
+// 다른 유저의 오답 항목
+export interface WrongAnswerEntry {
+  id: string;            // wrong_answer UUID
+  answerTokens: string[]; // 오답 토큰 배열
+  likesCount: number;    // 좋아요 수
+  isMyAnswer: boolean;   // 내가 제출한 오답인지 여부
+  iLiked: boolean;       // 내가 좋아요를 눌렀는지 여부
+}
+
+// questionId → 오답 목록 맵
+export interface OtherWrongAnswers {
+  [questionId: number]: WrongAnswerEntry[];
+}
+
+// ─── 게임 액션 타입 ───────────────────────────────────────────
+
 // 게임 액션 타입
 export type GameAction =
   | { type: "SET_MODE"; payload: GameMode }

@@ -19,6 +19,7 @@ import { TokenPool } from "./components/TokenPool";
 import { ActionButtons } from "./components/ActionButtons";
 import { ResultScreen } from "./components/ResultScreen";
 import { FeedbackScreen } from "./components/FeedbackScreen";
+import { useWrongAnswerSaver } from "./hooks/useWrongAnswerSaver";
 
 function GameScreen() {
   const { state, dispatch } = useGame();
@@ -93,6 +94,8 @@ function GameScreen() {
 
 function App() {
   const { state } = useGame();
+  // 오답 발생 시 서버에 저장 (fire-and-forget)
+  useWrongAnswerSaver();
 
   switch (state.phase) {
     case "setup":

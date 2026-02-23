@@ -1,8 +1,68 @@
+import { useState, useEffect, useCallback } from "react";
 import { useGame } from "../context/GameContext";
+import { getUserUuid } from "../utils/userUuid";
+import { OtherWrongAnswers } from "./OtherWrongAnswers";
+import type { WrongAnswerEntry } from "../types";
 
 export function FeedbackScreen() {
   const { state, dispatch } = useGame();
   const { lastResult, currentIndex, questions } = state;
+
+  const [entries, setEntries] = useState<WrongAnswerEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!lastResult || lastResult.skipped || lastResult.score >= 1.0) return;
+
+    const userUuid = getUserUuid();
+    const params = new URLSearchParams({
+      questionIds: String(lastResult.questionId),
+      userUuid,
+      difficulty: state.difficulty,
+    });
+
+    setIsLoading(true);
+    fetch(`/api/wrong-answers?${params.toString()}`)
+      .then((res) => res.json())
+      .then((data) => setEntries(data[lastResult.questionId] ?? []))
+      .catch((err) => console.error("[feedback] 오답 조회 실패:", err))
+      .finally(() => setIsLoading(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleLike = useCallback(
+    async (wrongAnswerId: string, _questionId: number, prevLiked: boolean, prevCount: number) => {
+      const userUuid = getUserUuid();
+
+      const update = (liked: boolean, count: number) =>
+        setEntries((prev) =>
+          prev.map((e) =>
+            e.id === wrongAnswerId ? { ...e, iLiked: liked, likesCount: count } : e
+          )
+        );
+
+      update(!prevLiked, prevLiked ? prevCount - 1 : prevCount + 1);
+
+      try {
+        const res = await fetch("/api/likes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ wrongAnswerId, userUuid }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          update(data.action === "liked", data.likesCount);
+        } else {
+          update(prevLiked, prevCount);
+          console.error("[likes] 서버 오류:", data.error);
+        }
+      } catch (err) {
+        update(prevLiked, prevCount);
+        console.error("[likes] 네트워크 오류:", err);
+      }
+    },
+    []
+  );
 
   if (!lastResult) return null;
 
@@ -80,6 +140,16 @@ export function FeedbackScreen() {
               ))}
             </div>
           </div>
+        )}
+
+        {/* 다른 유저 오답 (틀린 경우에만) */}
+        {!isCorrect && !lastResult.skipped && (
+          <OtherWrongAnswers
+            questionId={lastResult.questionId}
+            entries={entries}
+            isLoading={isLoading}
+            onLike={handleLike}
+          />
         )}
 
         {/* 다음 문제 / 결과 보기 버튼 */}
