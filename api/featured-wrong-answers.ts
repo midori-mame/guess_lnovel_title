@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { z } from "zod";
-import { supabase } from "./_supabase";
+import { supabase } from "./_supabase.js";
 import questionsData from "../src/data/questions.json";
 
 interface QuestionData {

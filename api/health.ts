@@ -3,7 +3,7 @@
 // vercel.json 의 crons 설정을 참고하세요.
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { supabase } from "./_supabase";
+import { supabase } from "./_supabase.js";
 
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
   const { error } = await supabase.from("wrong_answers").select("id").limit(1);

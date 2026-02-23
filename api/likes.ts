@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { z } from "zod";
-import { supabase } from "./_supabase";
-import { isRateLimited } from "./_ratelimit";
+import { supabase } from "./_supabase.js";
+import { isRateLimited } from "./_ratelimit.js";
 
 const postSchema = z.object({
   wrongAnswerId: z.string().uuid("wrongAnswerId 가 올바른 UUID 형식이 아닙니다."),

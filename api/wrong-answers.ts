@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { z } from "zod";
-import { supabase } from "./_supabase";
-import { isRateLimited } from "./_ratelimit";
+import { supabase } from "./_supabase.js";
+import { isRateLimited } from "./_ratelimit.js";
 import questionsData from "../src/data/questions.json";
 
 interface QuestionData {
