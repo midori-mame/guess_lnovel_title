@@ -76,6 +76,17 @@ export interface OtherWrongAnswers {
   [questionId: number]: WrongAnswerEntry[];
 }
 
+// 메인 화면 피처드 오답 항목 (문제 제목 포함)
+export interface FeaturedWrongAnswerEntry extends WrongAnswerEntry {
+  questionId: number;
+  title: string;
+}
+
+export interface FeaturedWrongAnswers {
+  popular: FeaturedWrongAnswerEntry[];
+  random: FeaturedWrongAnswerEntry[];
+}
+
 // ─── 게임 액션 타입 ───────────────────────────────────────────
 
 // 게임 액션 타입

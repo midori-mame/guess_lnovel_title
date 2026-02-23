@@ -38,7 +38,7 @@ export function getGrade(score: number): {
   message: string;
 } {
   if (score >= 9.0) {
-    return { grade: "S", message: "완벽해요! 웹소설 박사님!" };
+    return { grade: "S", message: "완벽해요! 제목 박사님!" };
   }
   if (score >= 7.0) {
     return { grade: "A", message: "훌륭해요! 꽤 많이 읽으셨군요!" };
@@ -49,5 +49,5 @@ export function getGrade(score: number): {
   if (score >= 3.0) {
     return { grade: "C", message: "분발이 필요해요!" };
   }
-  return { grade: "D", message: "웹소설 입문을 추천드려요!" };
+  return { grade: "D", message: "긴 제목 작품 감상을 추천드려요!" };
 }

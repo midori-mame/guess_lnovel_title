@@ -1,10 +1,22 @@
+import { useState } from "react";
 import { useGame } from "../context/GameContext";
 import type { Question } from "../types";
 import questionsData from "../data/questions.json";
 import { shuffle } from "../utils/shuffle";
+import { FeaturedWrongAnswerShowcase } from "./FeaturedWrongAnswerShowcase";
+
+type Tab = "settings" | "showcase";
 
 export function SetupScreen() {
   const { state, dispatch } = useGame();
+  const [activeTab, setActiveTab] = useState<Tab>("settings");
+  // showcase는 처음 열릴 때만 마운트 (이후 탭 전환 시 재조회 방지)
+  const [showcaseMounted, setShowcaseMounted] = useState(false);
+
+  const handleTabChange = (tab: Tab) => {
+    setActiveTab(tab);
+    if (tab === "showcase") setShowcaseMounted(true);
+  };
 
   const handleStart = () => {
     const allQuestions = questionsData as Question[];
@@ -14,11 +26,36 @@ export function SetupScreen() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-50">
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8 text-center">
-        한국 웹소설 제목 정렬 게임
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">
+        제목이 너무 길어!
       </h1>
 
-      <div className="w-full max-w-md space-y-6">
+      {/* 탭 */}
+      <div className="flex gap-1 mb-6 bg-gray-200 p-1 rounded-lg">
+        <button
+          onClick={() => handleTabChange("settings")}
+          className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            activeTab === "settings"
+              ? "bg-white text-gray-800 shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          게임 설정
+        </button>
+        <button
+          onClick={() => handleTabChange("showcase")}
+          className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            activeTab === "showcase"
+              ? "bg-white text-gray-800 shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          틀려도 괜찮아
+        </button>
+      </div>
+
+      {/* 게임 설정 탭 */}
+      <div className={`w-full max-w-md space-y-6 ${activeTab !== "settings" ? "hidden" : ""}`}>
         {/* 게임 모드 */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">
@@ -114,6 +151,13 @@ export function SetupScreen() {
           게임 시작
         </button>
       </div>
+
+      {/* 틀려도 괜찮아 탭 */}
+      {showcaseMounted && (
+        <div className={activeTab !== "showcase" ? "hidden" : ""}>
+          <FeaturedWrongAnswerShowcase />
+        </div>
+      )}
     </div>
   );
 }
