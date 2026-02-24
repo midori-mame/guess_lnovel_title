@@ -51,13 +51,14 @@ export interface GameState {
   soundEnabled: boolean;
   easyModeEnabled: boolean;
   questions: Question[];
-  currentIndex: number;          // 현재 문제 인덱스 (0~9)
+  currentIndex: number;          // 현재 문제 인덱스 (0~N)
   inputTokens: Token[];          // 입력 영역에 배치된 토큰
   poolTokens: Token[];           // 아직 선택되지 않은 토큰
   results: QuestionResult[];
   lastResult: QuestionResult | null;  // 직전 문제 채점 결과 (feedback 페이즈용)
   totalScore: number;
   timeLeft: number;              // 타임어택 모드 남은 시간(초)
+  totalQuestions: number;        // 이번 게임의 총 문제 수 (기본값: 10)
 }
 
 // ─── 오답 공유 기능 타입 ───────────────────────────────────────
@@ -94,6 +95,7 @@ export type GameAction =
   | { type: "SET_MODE"; payload: GameMode }
   | { type: "SET_DIFFICULTY"; payload: Difficulty }
   | { type: "SET_SCORING_MODE"; payload: ScoringMode }
+  | { type: "SET_TOTAL_QUESTIONS"; payload: number }
   | { type: "TOGGLE_SOUND" }
   | { type: "TOGGLE_EASY_MODE" }
   | { type: "START_GAME"; payload: Question[] }
@@ -106,4 +108,5 @@ export type GameAction =
   | { type: "REORDER_INPUT_TOKENS"; payload: string[] }  // 새 순서의 token id 배열
   | { type: "TICK_TIMER" }
   | { type: "RESET_TIMER" }
-  | { type: "RESET_GAME" };
+  | { type: "RESET_GAME" }
+  | { type: "RETURN_TO_SETUP" };

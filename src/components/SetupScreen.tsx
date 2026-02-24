@@ -4,8 +4,9 @@ import type { Question } from "../types";
 import questionsData from "../data/questions.json";
 import { shuffle } from "../utils/shuffle";
 import { FeaturedWrongAnswerShowcase } from "./FeaturedWrongAnswerShowcase";
+import { InfoTab } from "./InfoTab";
 
-type Tab = "settings" | "showcase";
+type Tab = "settings" | "showcase" | "info";
 
 export function SetupScreen() {
   const { state, dispatch } = useGame();
@@ -18,9 +19,11 @@ export function SetupScreen() {
     if (tab === "showcase") setShowcaseMounted(true);
   };
 
+  const QUESTION_COUNT_OPTIONS = [5, 10, 15, 20];
+
   const handleStart = () => {
     const allQuestions = questionsData as Question[];
-    const selectedQuestions = shuffle(allQuestions).slice(0, 10);
+    const selectedQuestions = shuffle(allQuestions).slice(0, state.totalQuestions);
     dispatch({ type: "START_GAME", payload: selectedQuestions });
   };
 
@@ -51,6 +54,16 @@ export function SetupScreen() {
           }`}
         >
           틀려도 괜찮아
+        </button>
+        <button
+          onClick={() => handleTabChange("info")}
+          className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            activeTab === "info"
+              ? "bg-white text-gray-800 shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          정보
         </button>
       </div>
 
@@ -143,6 +156,28 @@ export function SetupScreen() {
           </div>
         </div>
 
+        {/* 문제 수 */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            문제 수
+          </label>
+          <div className="flex gap-2">
+            {QUESTION_COUNT_OPTIONS.map((count) => (
+              <button
+                key={count}
+                onClick={() => dispatch({ type: "SET_TOTAL_QUESTIONS", payload: count })}
+                className={`flex-1 py-2 px-4 rounded-lg border-2 transition-colors ${
+                  state.totalQuestions === count
+                    ? "border-orange-500 bg-orange-50 text-orange-700"
+                    : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                }`}
+              >
+                {count}문제
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* 시작 버튼 */}
         <button
           onClick={handleStart}
@@ -158,6 +193,9 @@ export function SetupScreen() {
           <FeaturedWrongAnswerShowcase />
         </div>
       )}
+
+      {/* 정보 탭 */}
+      {activeTab === "info" && <InfoTab />}
     </div>
   );
 }

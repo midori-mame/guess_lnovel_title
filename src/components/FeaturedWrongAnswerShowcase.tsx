@@ -13,8 +13,8 @@ function EntryCard({ entry, onLike }: EntryCardProps) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-3">
       <p className="text-xs text-gray-400 mb-1.5 truncate">{entry.title}</p>
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-wrap gap-1 flex-1">
+      <div className="flex items-start justify-between gap-2 w-full max-w-full overflow-hidden">
+        <div className="flex flex-wrap gap-1 flex-1 min-w-0">
           {entry.answerTokens.map((token, i) => (
             <span
               key={i}
@@ -109,22 +109,33 @@ export function FeaturedWrongAnswerShowcase() {
   const [popular, setPopular] = useState<FeaturedWrongAnswerEntry[]>([]);
   const [random, setRandom] = useState<FeaturedWrongAnswerEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  useEffect(() => {
+  const fetchData = useCallback((isRefresh = false) => {
     const userUuid = getUserUuid();
-    setIsLoading(true);
+    if (isRefresh) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
     fetch(
       `/api/featured-wrong-answers?userUuid=${encodeURIComponent(userUuid)}`
     )
       .then((res) => res.json())
       .then((data: FeaturedWrongAnswers) => {
-        // 자기 오답 제외, 최대 3개
         setPopular(data.popular.filter((e) => !e.isMyAnswer).slice(0, 3));
         setRandom(data.random.filter((e) => !e.isMyAnswer).slice(0, 3));
       })
       .catch((err) => console.error("[featured] 조회 실패:", err))
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      });
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const makeLikeHandler = useCallback(
     (setter: React.Dispatch<React.SetStateAction<FeaturedWrongAnswerEntry[]>>) =>
@@ -138,7 +149,6 @@ export function FeaturedWrongAnswerShowcase() {
             )
           );
 
-        // 낙관적 업데이트
         update(!prevLiked, prevLiked ? prevCount - 1 : prevCount + 1);
 
         try {
@@ -174,6 +184,18 @@ export function FeaturedWrongAnswerShowcase() {
 
   return (
     <div className="w-full max-w-md space-y-6">
+      {/* 새로고침 버튼 */}
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => fetchData(true)}
+          disabled={isLoading || isRefreshing}
+          aria-label="새로고침"
+          className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-40 transition-colors"
+        >
+          <span className={isRefreshing ? "inline-block animate-spin" : ""}>↺</span>
+        </button>
+      </div>
       <Section
         title="🏆 인기 있는 오답"
         subtitle="(좋아요 5개 이상 중 무작위)"

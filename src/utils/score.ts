@@ -31,22 +31,23 @@ export function calcTotalScore(results: QuestionResult[]): number {
 }
 
 /**
- * 점수 등급 계산
+ * 점수 등급 계산 (비율 기준: totalScore / totalQuestions)
  */
-export function getGrade(score: number): {
+export function getGrade(totalScore: number, totalQuestions: number): {
   grade: string;
   message: string;
 } {
-  if (score >= 9.0) {
+  const ratio = totalQuestions > 0 ? totalScore / totalQuestions : 0;
+  if (ratio >= 0.9) {
     return { grade: "S", message: "완벽해요! 제목 박사님!" };
   }
-  if (score >= 7.0) {
+  if (ratio >= 0.7) {
     return { grade: "A", message: "훌륭해요! 꽤 많이 읽으셨군요!" };
   }
-  if (score >= 5.0) {
+  if (ratio >= 0.5) {
     return { grade: "B", message: "괜찮아요! 조금 더 읽어봐요!" };
   }
-  if (score >= 3.0) {
+  if (ratio >= 0.3) {
     return { grade: "C", message: "분발이 필요해요!" };
   }
   return { grade: "D", message: "긴 제목 작품 감상을 추천드려요!" };

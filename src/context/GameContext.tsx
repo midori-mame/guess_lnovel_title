@@ -27,6 +27,7 @@ const initialState: GameState = {
   lastResult: null,
   totalScore: 0,
   timeLeft: TIME_LIMIT,
+  totalQuestions: 10,
 };
 
 function loadQuestion(
@@ -68,6 +69,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "SET_SCORING_MODE":
       return { ...state, scoringMode: action.payload };
+
+    case "SET_TOTAL_QUESTIONS":
+      return { ...state, totalQuestions: action.payload };
 
     case "TOGGLE_SOUND":
       return { ...state, soundEnabled: !state.soundEnabled };
@@ -241,6 +245,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "RESET_GAME":
       return initialState;
+
+    case "RETURN_TO_SETUP":
+      return { ...initialState, phase: "setup" };
 
     default:
       return state;

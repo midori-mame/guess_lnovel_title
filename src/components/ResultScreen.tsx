@@ -7,8 +7,8 @@ import type { OtherWrongAnswers as OtherWrongAnswersType, WrongAnswerEntry } fro
 
 export function ResultScreen() {
   const { state, dispatch } = useGame();
-  const { grade, message } = getGrade(state.totalScore);
-  const percentage = Math.round((state.totalScore / state.questions.length) * 100);
+  const { grade, message } = getGrade(state.totalScore, state.totalQuestions);
+  const percentage = Math.round((state.totalScore / state.totalQuestions) * 100);
 
   const [otherAnswers, setOtherAnswers] = useState<OtherWrongAnswersType>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -91,7 +91,7 @@ export function ResultScreen() {
           <div className="text-6xl font-bold text-blue-600 mb-2">{grade}</div>
           <p className="text-lg text-gray-600 mb-4">{message}</p>
           <div className="text-xl font-medium text-gray-700">
-            총점: {state.totalScore.toFixed(2)} / {state.questions.length}.00
+            총점: {state.totalScore.toFixed(2)} / {state.totalQuestions}.00
           </div>
           <div className="text-lg text-gray-500">정답률: {percentage}%</div>
         </div>

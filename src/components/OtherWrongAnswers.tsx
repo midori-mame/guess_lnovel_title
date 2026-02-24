@@ -38,14 +38,14 @@ export function OtherWrongAnswers({
       ) : (
         <div className="space-y-2">
           {entries.filter((e) => !e.isMyAnswer).map((entry, index) => (
-            <div key={entry.id} className="flex items-start gap-2">
+            <div key={entry.id} className="flex items-start gap-2 w-full max-w-full overflow-hidden">
               {/* 순위 번호 */}
               <span className="text-xs text-gray-400 mt-1 w-4 shrink-0">
                 {RANK_SYMBOLS[index]}
               </span>
 
               {/* 토큰 목록 */}
-              <div className="flex-1 flex flex-wrap items-center gap-1">
+              <div className="flex-1 flex flex-wrap items-center gap-1 min-w-0">
                 {entry.answerTokens.map((token, i) => (
                   <span
                     key={i}

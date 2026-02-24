@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { useGame } from "../context/GameContext";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 export function GameHeader() {
   const { state, dispatch } = useGame();
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const difficultyLabel = state.difficulty === "easy" ? "쉬움" : "어려움";
   const scoringLabel = state.scoringMode === "exact" ? "완답만" : "부분 점수";
@@ -12,8 +15,14 @@ export function GameHeader() {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 p-4">
       <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-4">
-        {/* 좌측: 설정 뱃지 및 진행 상황 */}
+        {/* 좌측: 처음으로 버튼 + 설정 뱃지 및 진행 상황 */}
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setShowConfirm(true)}
+            className="text-sm text-gray-400 hover:text-gray-600 transition-colors mr-1"
+          >
+            ← 처음으로
+          </button>
           <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded">
             {difficultyLabel}
           </span>
@@ -24,9 +33,20 @@ export function GameHeader() {
             {modeLabel}
           </span>
           <span className="text-sm text-gray-600 ml-2">
-            문제: {state.currentIndex + 1}/{state.questions.length}
+            문제: {state.currentIndex + 1}/{state.totalQuestions}
           </span>
         </div>
+
+        <ConfirmDialog
+          isOpen={showConfirm}
+          message={"게임을 종료하고 처음으로 돌아가시겠어요?\n현재 진행 상황은 저장되지 않습니다."}
+          confirmLabel="처음으로"
+          onConfirm={() => {
+            setShowConfirm(false);
+            dispatch({ type: "RETURN_TO_SETUP" });
+          }}
+          onCancel={() => setShowConfirm(false)}
+        />
 
         {/* 우측: 점수, 타이머, 토글 */}
         <div className="flex items-center gap-4">
