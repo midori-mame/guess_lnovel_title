@@ -117,7 +117,17 @@ export function ResultScreen() {
                   </span>
                 </div>
 
-                <p className="text-sm text-gray-500 mb-2">정답: {result.title}</p>
+                <p className="text-sm text-gray-500 mb-2">
+                  정답:{" "}
+                  <a
+                    href={`https://www.google.com/search?q=${encodeURIComponent(result.title)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-blue-600 transition-colors"
+                  >
+                    {result.title} ↗
+                  </a>
+                </p>
 
                 {/* 내 답변 토큰 */}
                 <div className="flex flex-wrap gap-1 mb-2">

@@ -28,6 +28,7 @@ const initialState: GameState = {
   totalScore: 0,
   timeLeft: TIME_LIMIT,
   totalQuestions: 10,
+  isDragging: false,
 };
 
 function loadQuestion(
@@ -228,6 +229,33 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         lastResult: result,
       };
     }
+
+    case "MOVE_TOKEN": {
+      const { tokenId, from, to } = action.payload;
+      if (from === to) return state;
+      if (from === "pool" && to === "input") {
+        const token = state.poolTokens.find((t) => t.id === tokenId);
+        if (!token) return state;
+        return {
+          ...state,
+          poolTokens: state.poolTokens.filter((t) => t.id !== tokenId),
+          inputTokens: [...state.inputTokens, { ...token, isPlaced: true }],
+        };
+      }
+      if (from === "input" && to === "pool") {
+        const token = state.inputTokens.find((t) => t.id === tokenId);
+        if (!token) return state;
+        return {
+          ...state,
+          inputTokens: state.inputTokens.filter((t) => t.id !== tokenId),
+          poolTokens: [...state.poolTokens, { ...token, isPlaced: false }],
+        };
+      }
+      return state;
+    }
+
+    case "SET_DRAGGING":
+      return { ...state, isDragging: action.payload };
 
     case "REORDER_INPUT_TOKENS": {
       const orderedIds = action.payload;

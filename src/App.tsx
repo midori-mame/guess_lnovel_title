@@ -9,8 +9,12 @@ import { FeedbackScreen } from "./components/FeedbackScreen";
 import { useWrongAnswerSaver } from "./hooks/useWrongAnswerSaver";
 
 function GameScreen() {
+  const { state } = useGame();
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div
+      className="min-h-screen bg-gray-100"
+      style={{ touchAction: state.isDragging ? "none" : "auto" }}
+    >
       <GameHeader />
       <main className="py-6">
         <InputArea />

@@ -59,6 +59,7 @@ export interface GameState {
   totalScore: number;
   timeLeft: number;              // 타임어택 모드 남은 시간(초)
   totalQuestions: number;        // 이번 게임의 총 문제 수 (기본값: 10)
+  isDragging: boolean;           // 드래그 중 여부 (드래그 중 touch-action 억제용)
 }
 
 // ─── 오답 공유 기능 타입 ───────────────────────────────────────
@@ -106,6 +107,11 @@ export type GameAction =
   | { type: "SKIP_QUESTION" }
   | { type: "NEXT_QUESTION" }
   | { type: "REORDER_INPUT_TOKENS"; payload: string[] }  // 새 순서의 token id 배열
+  | {
+      type: "MOVE_TOKEN";
+      payload: { tokenId: string; from: "pool" | "input"; to: "pool" | "input" };
+    }
+  | { type: "SET_DRAGGING"; payload: boolean }
   | { type: "TICK_TIMER" }
   | { type: "RESET_TIMER" }
   | { type: "RESET_GAME" }
