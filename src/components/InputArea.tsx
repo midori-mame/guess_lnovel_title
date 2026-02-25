@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useGame } from "../context/GameContext";
+import { touchDragState } from "../utils/touchDragState";
 import type { Token } from "../types";
 
 function PlacedToken({
@@ -12,6 +13,7 @@ function PlacedToken({
   onDragOver,
   onDragLeave,
   onDrop,
+  onTouchStart,
 }: {
   token: Token;
   isDraggingThis: boolean;
@@ -22,9 +24,11 @@ function PlacedToken({
   onDragOver: (e: React.DragEvent) => void;
   onDragLeave: () => void;
   onDrop: (e: React.DragEvent) => void;
+  onTouchStart: (e: React.TouchEvent<HTMLButtonElement>) => void;
 }) {
   return (
     <button
+      data-token-id={token.id}
       draggable
       onClick={onClick}
       onDragStart={onDragStart}
@@ -32,6 +36,7 @@ function PlacedToken({
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
+      onTouchStart={onTouchStart}
       className={`${token.color} px-3 py-2 rounded-lg font-medium text-gray-800 shadow-sm hover:opacity-80 active:opacity-60 transition-opacity ${
         isDraggingThis ? "opacity-40" : "opacity-100"
       } ${isDragOverThis ? "ring-2 ring-blue-400 ring-offset-1" : ""}`}
@@ -47,6 +52,7 @@ export function InputArea() {
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [isContainerDragOver, setIsContainerDragOver] = useState(false);
 
+  // HTML5 DnD (PC)
   const handleDragStart = (e: React.DragEvent, token: Token) => {
     e.dataTransfer.setData("tokenId", token.id);
     e.dataTransfer.setData("from", "input");
@@ -61,10 +67,9 @@ export function InputArea() {
     dispatch({ type: "SET_DRAGGING", payload: false });
   };
 
-  // 특정 토큰 위에서 드래그 중
   const handleTokenDragOver = (e: React.DragEvent, tokenId: string) => {
     e.preventDefault();
-    e.stopPropagation(); // 컨테이너 onDragOver 억제
+    e.stopPropagation();
     e.dataTransfer.dropEffect = "move";
     setIsContainerDragOver(false);
     setDragOverId(tokenId);
@@ -74,10 +79,9 @@ export function InputArea() {
     setDragOverId(null);
   };
 
-  // 특정 토큰 위에 드롭
   const handleTokenDrop = (e: React.DragEvent, dropOnTokenId: string) => {
     e.preventDefault();
-    e.stopPropagation(); // 컨테이너 onDrop 억제
+    e.stopPropagation();
     setDragOverId(null);
     setIsContainerDragOver(false);
 
@@ -85,10 +89,8 @@ export function InputArea() {
     const from = e.dataTransfer.getData("from") as "pool" | "input";
 
     if (from === "pool") {
-      // 풀 → 입력 영역 (드롭된 토큰 끝에 추가)
       dispatch({ type: "MOVE_TOKEN", payload: { tokenId, from, to: "input" } });
     } else if (from === "input" && dropOnTokenId !== tokenId) {
-      // 입력 영역 내 순서 변경
       const currentIds = state.inputTokens.map((t) => t.id);
       const fromIndex = currentIds.indexOf(tokenId);
       const toIndex = currentIds.indexOf(dropOnTokenId);
@@ -101,7 +103,6 @@ export function InputArea() {
     }
   };
 
-  // 컨테이너 빈 공간에서 드래그 중
   const handleContainerDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
@@ -113,7 +114,6 @@ export function InputArea() {
     setIsContainerDragOver(false);
   };
 
-  // 컨테이너 빈 공간에 드롭 (토큰 위가 아닌 곳)
   const handleContainerDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsContainerDragOver(false);
@@ -121,13 +121,30 @@ export function InputArea() {
 
     const tokenId = e.dataTransfer.getData("tokenId");
     const from = e.dataTransfer.getData("from") as "pool" | "input";
-    if (from === "input") return; // 입력 영역 내 드롭은 토큰 레벨에서 처리
+    if (from === "input") return;
     dispatch({ type: "MOVE_TOKEN", payload: { tokenId, from, to: "input" } });
+  };
+
+  // 터치 DnD (모바일) — touchmove/touchend는 useGlobalTouchDrag에서 처리
+  const handleTouchStart = (
+    e: React.TouchEvent<HTMLButtonElement>,
+    token: Token
+  ) => {
+    touchDragState.current = {
+      tokenId: token.id,
+      from: "input",
+      startX: e.touches[0].clientX,
+      startY: e.touches[0].clientY,
+      isDragging: false,
+      ghostEl: null,
+      sourceEl: e.currentTarget,
+    };
   };
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
       <div
+        data-dropzone="input"
         className={`border-2 border-dashed rounded-lg p-4 min-h-[80px] transition-colors ${
           isContainerDragOver
             ? "border-blue-400 bg-blue-50"
@@ -155,6 +172,7 @@ export function InputArea() {
                 onDragOver={(e) => handleTokenDragOver(e, token.id)}
                 onDragLeave={handleTokenDragLeave}
                 onDrop={(e) => handleTokenDrop(e, token.id)}
+                onTouchStart={(e) => handleTouchStart(e, token)}
               />
             ))}
           </div>

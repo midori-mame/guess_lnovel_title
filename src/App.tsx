@@ -7,9 +7,11 @@ import { ActionButtons } from "./components/ActionButtons";
 import { ResultScreen } from "./components/ResultScreen";
 import { FeedbackScreen } from "./components/FeedbackScreen";
 import { useWrongAnswerSaver } from "./hooks/useWrongAnswerSaver";
+import { useGlobalTouchDrag } from "./hooks/useGlobalTouchDrag";
 
 function GameScreen() {
   const { state } = useGame();
+  useGlobalTouchDrag(); // 모바일 터치 드래그 앤 드롭 처리
   return (
     <div
       className="min-h-screen bg-gray-100"

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useGame } from "../context/GameContext";
+import { touchDragState } from "../utils/touchDragState";
 import type { Token } from "../types";
 
 function TokenButton({
@@ -8,19 +9,23 @@ function TokenButton({
   onClick,
   onDragStart,
   onDragEnd,
+  onTouchStart,
 }: {
   token: Token;
   draggingId: string | null;
   onClick: () => void;
   onDragStart: (e: React.DragEvent) => void;
   onDragEnd: () => void;
+  onTouchStart: (e: React.TouchEvent<HTMLButtonElement>) => void;
 }) {
   return (
     <button
+      data-token-id={token.id}
       draggable
       onClick={onClick}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
+      onTouchStart={onTouchStart}
       className={`${token.color} px-3 py-2 rounded-lg font-medium text-gray-800 shadow-sm hover:opacity-80 active:opacity-60 transition-opacity ${
         draggingId === token.id ? "opacity-40" : "opacity-100"
       }`}
@@ -38,6 +43,7 @@ export function TokenPool() {
   const currentQuestion = state.questions[state.currentIndex];
   const totalTokenCount = currentQuestion?.tokens[state.difficulty].length ?? 0;
 
+  // HTML5 DnD (PC)
   const handleDragStart = (e: React.DragEvent, token: Token) => {
     e.dataTransfer.setData("tokenId", token.id);
     e.dataTransfer.setData("from", "pool");
@@ -70,8 +76,25 @@ export function TokenPool() {
     dispatch({ type: "MOVE_TOKEN", payload: { tokenId, from, to: "pool" } });
   };
 
+  // 터치 DnD (모바일) — touchmove/touchend는 useGlobalTouchDrag에서 처리
+  const handleTouchStart = (
+    e: React.TouchEvent<HTMLButtonElement>,
+    token: Token
+  ) => {
+    touchDragState.current = {
+      tokenId: token.id,
+      from: "pool",
+      startX: e.touches[0].clientX,
+      startY: e.touches[0].clientY,
+      isDragging: false,
+      ghostEl: null,
+      sourceEl: e.currentTarget,
+    };
+  };
+
   return (
     <div
+      data-dropzone="pool"
       className={`w-full max-w-4xl mx-auto p-4 rounded-lg transition-colors ${
         isDragOver ? "bg-blue-50" : ""
       }`}
@@ -93,6 +116,7 @@ export function TokenPool() {
             onClick={() => dispatch({ type: "SELECT_TOKEN", payload: token.id })}
             onDragStart={(e) => handleDragStart(e, token)}
             onDragEnd={handleDragEnd}
+            onTouchStart={(e) => handleTouchStart(e, token)}
           />
         ))}
       </div>
