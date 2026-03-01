@@ -27,3 +27,6 @@ dist-ssr
 data_generator
 .vercel
 .env*.local
+
+# Supabase local config (민감 정보 포함 가능)
+supabase/
