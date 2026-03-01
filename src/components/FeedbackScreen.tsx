@@ -93,7 +93,7 @@ export function FeedbackScreen() {
         {/* 정답 제목 */}
         <div>
           <p className="text-sm text-gray-500 mb-1">정답</p>
-          <p className="text-lg font-medium text-gray-800">
+          <p className="text-lg font-medium text-gray-800 break-words">
             {lastResult.title}
           </p>
         </div>

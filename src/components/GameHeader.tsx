@@ -49,7 +49,7 @@ export function GameHeader() {
         />
 
         {/* 우측: 점수, 타이머, 토글 */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <span className="text-sm font-medium text-gray-700">
             현재 점수: {currentScore.toFixed(2)}
           </span>

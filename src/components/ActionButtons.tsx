@@ -5,7 +5,7 @@ export function ActionButtons() {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
-      <div className="flex justify-center gap-4">
+      <div className="flex flex-wrap justify-center gap-3">
         <button
           onClick={() => dispatch({ type: "CLEAR_INPUT" })}
           className="px-6 py-2 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 transition-colors"
