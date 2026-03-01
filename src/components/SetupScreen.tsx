@@ -189,7 +189,7 @@ export function SetupScreen() {
 
       {/* 틀려도 괜찮아 탭 */}
       {showcaseMounted && (
-        <div className={activeTab !== "showcase" ? "hidden" : ""}>
+        <div className={`w-full max-w-md ${activeTab !== "showcase" ? "hidden" : ""}`}>
           <FeaturedWrongAnswerShowcase />
         </div>
       )}

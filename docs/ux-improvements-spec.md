@@ -20,50 +20,11 @@
 
 ## 1. 모바일 스크롤/드래그 충돌 해결
 
-### 문제 상황
-
-모바일에서 `TokenPool` 영역을 손가락으로 스크롤하려 할 때, 브라우저가 터치 이벤트를
-스크롤이 아닌 드래그로 해석하여 두 동작이 충돌한다.
-
-### 원인
-
-`TokenPool`과 `InputArea`의 토큰 카드에 드래그 관련 이벤트 핸들러(`onMouseDown`,
-`onTouchStart` 등)가 등록되어 있으면, 브라우저의 기본 스크롤 동작이 억제된다.
-
-### 해결 방법: 탭(tap) 방식으로 통일
-
-드래그 인터랙션을 제거하고, **단순 탭(클릭)으로만 토큰을 선택·배치**하는 방식으로
-통일한다. 기존 PC 클릭 동작과 동일하게 동작하므로 별도 분기 처리가 필요 없다.
-
-#### TokenPool 카드
-
-- `onClick` 핸들러만 유지
-- `onMouseDown`, `onTouchStart`, `draggable` 등 드래그 관련 속성 모두 제거
-- 탭하면 토큰이 `InputArea` 끝에 추가되는 기존 동작 유지
-
-#### InputArea 카드
-
-- `onClick` 핸들러만 유지 (탭하면 `TokenPool`로 반환)
-- 드래그 관련 속성 모두 제거
-
-#### 스크롤 보장
-
-`TokenPool` 컨테이너에 아래 CSS를 적용하여 세로 스크롤이 항상 동작하도록 보장한다.
-
-```css
-touch-action: pan-y;   /* 세로 스크롤 허용, 가로 제스처 차단 */
-overflow-y: auto;
-```
-
-Tailwind 클래스로는 `touch-pan-y overflow-y-auto`를 사용한다.
-`touch-pan-y`가 Tailwind 기본 클래스에 없으면 `style={{ touchAction: 'pan-y' }}`
-인라인 스타일로 적용한다.
-
-#### 검증 조건
-
-- 모바일(또는 브라우저 DevTools 모바일 에뮬레이터)에서 `TokenPool` 영역을
-  위아래로 스와이프했을 때 페이지가 스크롤되어야 한다.
-- 토큰 카드를 탭했을 때 선택/취소가 정상 동작해야 한다.
+> ⚠️ **이 섹션은 폐기됨.**
+> "드래그 제거 + 탭으로 통일" 방식은 채택되지 않았다.
+> 드래그 기능은 유지하며, 드래그 중 스크롤 충돌 해결은
+> **`ux-improvements-spec-2.md` 섹션 2·3** 을 따를 것.
+> 이 섹션의 내용을 이미 코드에 반영했다면 반드시 되돌린 뒤 새 명세를 적용할 것.
 
 ---
 
@@ -414,6 +375,8 @@ const [isRefreshing, setIsRefreshing] = useState(false);
 
 의존성이 없는 항목부터 처리한다. 아래 순서를 따를 것.
 
+> 섹션 1(드래그 제거)은 폐기됨. 드래그/스크롤 관련 작업은 `ux-improvements-spec-2.md`를 따를 것.
+
 ```
 [1단계] 문제 수 조정
   → GameState에 totalQuestions 추가
@@ -442,9 +405,4 @@ const [isRefreshing, setIsRefreshing] = useState(false);
   → 새로고침 버튼 UI 추가
   → 로딩 중 비활성화 + 스피너 동작 확인
   → 실패 시 토스트 메시지 확인
-
-[6단계] 모바일 스크롤/드래그 충돌 해결
-  → TokenPool, InputArea에서 드래그 관련 코드 제거
-  → touch-action: pan-y 적용
-  → 브라우저 DevTools 모바일 에뮬레이터로 스크롤/탭 동작 검증
 ```
